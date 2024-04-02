@@ -1,85 +1,18 @@
 const Gameboard = (function () {
-    let board = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
+    let board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
 
     const printBoard = () => console.log(board);
 
     const getBoard = () => board;
 
-    const clearBoard = () => board = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
+    const clearBoard = () => board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
 
-    const drawMarker = (player, cell) => {
-        switch (cell) {
-            case 1:
-                if (board[0][0] === " ") {
-                    board[0][0] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 2:
-                if (board[0][1] === " ") {
-                    board[0][1] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 3:
-                if (board[0][2] === " ") {
-                    board[0][2] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 4:
-                if (board[1][0] === " ") {
-                    board[1][0] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 5:
-                if (board[1][1] === " ") {
-                    board[1][1] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 6:
-                if (board[1][2] === " ") {
-                    board[1][2] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 7:
-                if (board[2][0] === " ") {
-                    board[2][0] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 8:
-                if (board[2][1] === " ") {
-                    board[2][1] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
-            break;
-            case 9:
-                if (board[2][2] === " ") {
-                    board[2][2] = player.marker;
-                } else {
-                    console.log(`[!] Cell is already occupied. Pick another one.`);
-                    return true;
-                };
+    const drawMarker = (player, index) => {
+        if (board[index] === " ") {
+            board[index] = player.marker;
+        } else {
+            console.log(`[!] Cell is already occupied. Pick another one.`);
+            return true;
         };
     };
 
@@ -93,20 +26,20 @@ const Game = (function () {
         return {name, marker}
     }
 
-    function checkForWinner(board) {
+    function checkForWinner(array) {
         const winningCombinations = [
-            [board[0][0], board[0][1], board[0][2]],
-            [board[1][0], board[1][1], board[1][2]],
-            [board[2][0], board[2][1], board[2][2]],
-            [board[0][0], board[1][0], board[2][0]],
-            [board[0][1], board[1][1], board[2][1]],
-            [board[0][2], board[1][2], board[2][2]],
-            [board[0][0], board[1][1], board[2][2]],
-            [board[0][2], board[1][1], board[2][0]]
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
         ]
         for (let i = 0; i < winningCombinations.length; i++) {
             const [a, b, c] = winningCombinations[i];
-            if ((a !== " ") && (a === b) && (a === c)) {
+            if ((array[a] !== " ") && (array[a] === array[b]) && (array[a] === array[c])) {
                 return true;
             }
             
@@ -114,12 +47,12 @@ const Game = (function () {
         
     }
     
-    function checkForTie(board) {
-        return board.every(item => item.every(cell => cell !== " "));
+    function checkForTie(array) {
+        return array.every(item => item !== " ");
     }
 
-    const players = [createPlayer('Player1', 'X'),
-                     createPlayer('Player2', 'O')];
+    const players = [createPlayer('Player X', '✘'),
+                     createPlayer('Player O', 'O')];
     let activePlayer = players[0];
     let gameOver = false;
 
@@ -137,7 +70,7 @@ const Game = (function () {
         console.log(`${getActivePlayer().name}'s turn.`);
     }
 
-    const playRound = (cell) => {
+    /*const playRound = (cell) => {
         // Drop a token for the current player
         if (gameOver === true) {
             console.log(`Game over. Reset game to play again`);
@@ -173,11 +106,100 @@ const Game = (function () {
 
     // Initial play game message
     Gameboard.printBoard();
-    console.log(`${getActivePlayer().name}'s turn.`);
+    console.log(`${getActivePlayer().name}'s turn.`);*/
   
     return {
-      playRound,
+      gameOver,
       getActivePlayer,
-      resetGame
+      resetGame,
+      switchPlayerTurn,
+      checkForTie,
+      checkForWinner
     };
 })();
+
+const screenController = (function () {
+    const body = document.querySelector('body');
+    const title = document.createElement('h1');
+    const container = document.createElement('div');
+    const gameStatus = document.createElement('div');
+    const boxesContainer = document.createElement('div');
+    const resetButton = document.createElement('button');
+
+    container.setAttribute('class', 'container');
+    gameStatus.setAttribute('class', 'game-status');
+    boxesContainer.setAttribute('class', 'boxes-container');
+    resetButton.setAttribute('class', 'reset-button');
+
+    body.appendChild(title);
+    body.appendChild(container);
+    container.appendChild(gameStatus);
+    container.appendChild(boxesContainer);
+    container.appendChild(resetButton);
+
+    title.textContent = 'Tic Tac Toe';
+    gameStatus.textContent = `${Game.getActivePlayer().name}'s turn`;
+    resetButton.textContent = 'Reset';
+
+    function removeBoxes(container) {
+        while (container.firstChild) {
+            container.removeChild(container.lastChild);
+          }
+    };
+    
+    function renderBoard (array) {
+        for (let i = 0; i < array.length; i++) {
+            let box = document.createElement('div');
+            box.setAttribute('class', 'box');
+            box.textContent = array[i];
+            boxesContainer.appendChild(box);
+
+            box.addEventListener('click', () => {
+                if (Game.gameOver === true) {
+                    return;
+                }
+
+                if (Gameboard.drawMarker(Game.getActivePlayer(), i)) {
+                    Gameboard.printBoard();
+                    return;
+                }
+
+                box.textContent = Game.getActivePlayer().marker;
+
+                if (Game.checkForWinner(Gameboard.getBoard())) {
+                    gameStatus.textContent = `${Game.getActivePlayer().name} has won!`;
+                    Game.gameOver = true;
+                    return;
+                }
+
+                if (Game.checkForTie(Gameboard.getBoard())) {
+                    console.log('It\'s a Tie!')
+                    gameStatus.textContent = `It's a tie!`;
+                    Game.gameOver = true;
+                    return;
+                }
+                
+                Game.switchPlayerTurn();
+                gameStatus.textContent = `${Game.getActivePlayer().name}'s turn`;  
+            });
+        };
+    };
+
+    renderBoard(Gameboard.getBoard());
+    
+
+    resetButton.addEventListener('click', () => {
+        Game.gameOver = false;
+        Game.resetGame();
+        gameStatus.textContent = `${Game.getActivePlayer().name}'s turn`;
+        removeBoxes(boxesContainer);
+        renderBoard(Gameboard.getBoard());
+    })
+
+    return {gameStatus}
+})();
+
+//TO DO:
+//Add favicon
+//Add footer
+//Cleanup code
