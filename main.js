@@ -1,8 +1,6 @@
 const Gameboard = (function () {
     let board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
 
-    const printBoard = () => console.log(board);
-
     const getBoard = () => board;
 
     const clearBoard = () => board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
@@ -16,15 +14,25 @@ const Gameboard = (function () {
         };
     };
 
-    return {printBoard, getBoard, clearBoard, drawMarker};
+    return {getBoard, clearBoard, drawMarker};
 })();
-
 
 const Game = (function () {
 
     function createPlayer (name, marker) {
         return {name, marker}
     }
+
+    const players = [createPlayer('Player X', '✘'),
+                     createPlayer('Player O', 'O')];
+    let activePlayer = players[0];
+    let gameOver = false;
+
+    const getActivePlayer = () => activePlayer;
+
+    const switchPlayerTurn = () => {
+        activePlayer = activePlayer === players[0] ? players[1] : players[0];
+    };
 
     function checkForWinner(array) {
         const winningCombinations = [
@@ -41,80 +49,26 @@ const Game = (function () {
             const [a, b, c] = winningCombinations[i];
             if ((array[a] !== " ") && (array[a] === array[b]) && (array[a] === array[c])) {
                 return true;
-            }
-            
-        }
-        
+            }     
+        }    
     }
     
     function checkForTie(array) {
         return array.every(item => item !== " ");
     }
 
-    const players = [createPlayer('Player X', '✘'),
-                     createPlayer('Player O', 'O')];
-    let activePlayer = players[0];
-    let gameOver = false;
-
-    const switchPlayerTurn = () => {
-        activePlayer = activePlayer === players[0] ? players[1] : players[0];
-    };
-
-    const getActivePlayer = () => activePlayer;
-
     const resetGame = () => {
         Gameboard.clearBoard();
-        gameOver = false;
         activePlayer = players[0];
-        Gameboard.printBoard();
-        console.log(`${getActivePlayer().name}'s turn.`);
     }
-
-    /*const playRound = (cell) => {
-        // Drop a token for the current player
-        if (gameOver === true) {
-            console.log(`Game over. Reset game to play again`);
-            return;
-        }
-
-        console.log(`Putting ${getActivePlayer().name}'s marker into cell ${cell}...`);
-        
-        if (Gameboard.drawMarker(getActivePlayer(), cell)) {
-            Gameboard.printBoard();
-            return;
-        }
-        
-        Gameboard.printBoard();
-
-        if (checkForWinner(Gameboard.getBoard())) {
-            console.log(`${getActivePlayer().name} won!`);
-            gameOver = true;
-            return;
-        }
-
-        if (checkForTie(Gameboard.getBoard())) {
-            console.log(`It's a tie!`);
-            gameOver = true;
-        }
-
-        // Switch player turn
-        switchPlayerTurn();
-        if (gameOver === false) {
-            console.log(`${getActivePlayer().name}'s turn.`);
-        }
-    };
-
-    // Initial play game message
-    Gameboard.printBoard();
-    console.log(`${getActivePlayer().name}'s turn.`);*/
   
     return {
       gameOver,
       getActivePlayer,
-      resetGame,
       switchPlayerTurn,
+      checkForWinner,
       checkForTie,
-      checkForWinner
+      resetGame
     };
 })();
 
@@ -125,6 +79,7 @@ const screenController = (function () {
     const gameStatus = document.createElement('div');
     const boxesContainer = document.createElement('div');
     const resetButton = document.createElement('button');
+    const footer = document.querySelector('footer');
 
     container.setAttribute('class', 'container');
     gameStatus.setAttribute('class', 'game-status');
@@ -136,7 +91,8 @@ const screenController = (function () {
     container.appendChild(gameStatus);
     container.appendChild(boxesContainer);
     container.appendChild(resetButton);
-
+    body.appendChild(footer);
+    
     title.textContent = 'Tic Tac Toe';
     gameStatus.textContent = `${Game.getActivePlayer().name}'s turn`;
     resetButton.textContent = 'Reset';
@@ -160,7 +116,6 @@ const screenController = (function () {
                 }
 
                 if (Gameboard.drawMarker(Game.getActivePlayer(), i)) {
-                    Gameboard.printBoard();
                     return;
                 }
 
@@ -173,12 +128,11 @@ const screenController = (function () {
                 }
 
                 if (Game.checkForTie(Gameboard.getBoard())) {
-                    console.log('It\'s a Tie!')
                     gameStatus.textContent = `It's a tie!`;
                     Game.gameOver = true;
                     return;
                 }
-                
+
                 Game.switchPlayerTurn();
                 gameStatus.textContent = `${Game.getActivePlayer().name}'s turn`;  
             });
@@ -187,7 +141,6 @@ const screenController = (function () {
 
     renderBoard(Gameboard.getBoard());
     
-
     resetButton.addEventListener('click', () => {
         Game.gameOver = false;
         Game.resetGame();
@@ -195,11 +148,4 @@ const screenController = (function () {
         removeBoxes(boxesContainer);
         renderBoard(Gameboard.getBoard());
     })
-
-    return {gameStatus}
 })();
-
-//TO DO:
-//Add favicon
-//Add footer
-//Cleanup code

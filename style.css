@@ -75,3 +75,18 @@ h1 {
 .reset-button:active {
     filter: brightness(105%);
 }
+
+footer {
+    color: #fff;
+    text-align: center;
+    padding: 30px 0 10px 0;
+}
+
+footer a {
+    text-decoration: none;
+    color: #fff;
+}
+
+footer a:hover {
+    color: pink;
+}
